@@ -101,7 +101,7 @@ The related variables used in DoseCalcs building should be set to : 
 -DCMAKE_CXX_COMPILER=/home/User/Desktop/openmpi1.8.1/install/bin/mpicxx,
 -DCMAKE_C_COMPILER=home/User/Desktop/openmpi1.8.1/install/bin/mpicc.
 
- * Root Analysis System
+ * ROOT Analysis System
 
 Download Root from: https://root.cern/downloading-root 
 
@@ -145,7 +145,7 @@ DoseCalcs building
 
  .. image:: /images/DoseCalcsBuilding.png
  
- .. image:: /images/buildDir.png
+ .. image:: /images/BuildDir.png
   
 1. Building Command
 
@@ -170,13 +170,13 @@ Considering that the application source directory is in /home/User/Desktop/DoseC
 
 -DDCMTK_DIR : Used If we set -DWITH_VOX_USE and -DWITH_DCMTK_USE to ON, the value of this variable is the installation path of DCMTK
 
--DWITH_ANALYSIS_USE : Used If we want to Generate Graphs using ROOT ANALYSIS SYSTEM, cmake generate an executable called graph
+-DWITH_ANALYSIS_USE : Used If we want to Generate Graphs using ROOT ANALYSIS SYSTEM, cmake generate an executable called [analysis]
 
 -DROOT_DIR : Used if we set -DWITH_ANALYSIS_USE to ON , the value of this variable is the installation path of ROOT
 
 -DWITH_MT_USE : Used in Multi-Threading computation,to run DoseCalcs on multiple cores of a computers, dividing Events number on number Of cores.
 
--DWITH_G4MPI_USE : Used in MPI DoseCalcs running, to run the application on cluster containing Multiple Computers, each computer has a number of cores. cmake generate an executable called merge, this used to merge the result of a MPI simulations in cluster nodes, and create a master result on master node.
+-DWITH_G4MPI_USE : Used in MPI DoseCalcs running, to run the application on cluster containing Multiple Computers, each computer has a number of cores. cmake generate an executable called [merge], this used to merge the result of a MPI simulations in cluster nodes, and create a master result on master node.
 
 -DCMAKE_C_COMPILER : Used if we set -DWITH_G4MPI_USE to ON, the value of this variable is the path of mpicc
 
@@ -184,9 +184,9 @@ Considering that the application source directory is in /home/User/Desktop/DoseC
 
 The variables -DWITH_DCMTK_USE, -DWITH_G4MPI_USE and -DWITH_ANALYSIS_USE are needed if the correspondent libraries to be used.
 
-If -DWITH_DCMTK_USE and -DWITH_ANALYSIS_USE are set to ON , we need to set the correspondent -DDCMTK_DIR, -DROOT_DIR. 
+If -DWITH_DCMTK_USE and -DWITH_ANALYSIS_USE are set to ON, we need to set the correspondent -DDCMTK_DIR, -DROOT_DIR. 
 
-If -DWITH_ANALYSIS_USE is set OFF or it doesn’t present in the cmake command, the setting of -DROOT_DIR is unneeded. the same for -DWITH_DCMTK_USE.
+If -DWITH_ANALYSIS_USE is set OFF, or it doesn’t present in the cmake command, the setting of -DROOT_DIR is unneeded. The same for -DWITH_DCMTK_USE.
 
 3. Building Example
 
@@ -194,7 +194,9 @@ If -DWITH_ANALYSIS_USE is set OFF or it doesn’t present in the cmake command, 
   
    $ cmake -DCMAKE_BUILD_TYPE=Debug  -DWITH_GDML_USE=ON -DWITH_VOX_USE=ON  -DWITH_DCMTK_USE=ON  -DDCMTK_DIR=/home/tarik/Desktop/WorkSpace/geant4/dcmtk-3.6.5/install/usr/local/lib/cmake/dcmtk  -DWITH_ANALYSIS_USE=ON  -DROOT_DIR=/usr/local/lib  -DWITH_MT_USE=OFF  -DWITH_G4MPI_USE=ON  -DCMAKE_CXX_COMPILER=$OpenMPIInstallDir/bin/mpicxx  -DCMAKE_C_COMPILER=$OpenMPIInstallDir/bin/mpicc $ApplicationSourcePath 
 
-After DoseCalcs building, the three directories EventsData, Scripts and Results in the main application directory structure shown in figure \ref{SrcDir}, are copied to the build directory. Where the Scripts directory contains the commands and geometry macros, TissueFactors.mac and RadiationFactors.mac files used in calculation of the equivalent dose (H) and the effective dose (E). The directory EventsData, will contain the generated data files. Finally, Results directory will contain all the results of the simulation, text files and ROOT generated graphs and histograms. Besides these directories, the core.cc file serves to generate DoseCalcs executable file, the same for graph.cc and merge.cc, that serve to generate graph and merge executable files respectively as shown in the figure \ref{BuildDir}. For the visualization purposes macros commands file, openGLVis.mac is called when the user run core executable in graphical mode.
+After DoseCalcs building, the three directories EventsData, Scripts and Results in the main application directory structure shown in figure \ref{SrcDir}, are copied to the build directory. Where the scripts directory contains the commands and geometry macros, TissueRadiationFactors.mac file is used in calculation of the equivalent dose (H) and the effective dose (E). The directory EventsData, will contain the generated data files. Finally, Results directory will contain all the results of the simulation, text files and ROOT generated graphs and histograms. Besides these directories, the simulate.cc file serves to generate [simulate] executable file, the same as analysis.cc and merge.cc, that serve to generate [analysis] and [merge] executable files respectively as shown in the figure \ref{BuildDir}. For the visualization purposes macros commands file, openGLVis.mac is called when the user run [simulate] executable in graphical mode.
+
+
 
 
 
