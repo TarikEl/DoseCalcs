@@ -82,19 +82,18 @@ TEXT Geometry File : Contains all geometry description data, where materials, so
 
 STL Solids Files : Each solid is described by an STL file, adding the materials given in input commands file to construct geometry volumes.
 
-Voxel IDs Geometry File : Contains IDs, each ID represents a specific material that fill the correspondent voxel.
+.. Voxel IDs Geometry File : Contains IDs, each ID represents a specific material that fill the correspondent voxel.
 
-DICOM Files : Each file contains a slice data, DoseCalcs can read slice pixels that represents either density or activity.
+.. DICOM Files : Each file contains a slice data, DoseCalcs can read slice pixels that represents either density or activity.
 
 Execution
 ---------
 
 Execution Command
 +++++++++++++++++
-
  .. code-block:: bash
 
-    $ ./core [Run Mode] [input file] [Events Number Per Thread]
+    $ ./simulate [Run Mode] [input file] [Events Number Per Thread]
 
 [input file] : inputs commands file
 
@@ -107,7 +106,7 @@ Computation Modes
 
  .. code-block:: bash
 
-    $ ./core B inp.mac 100000
+    $ ./simulate B inp.mac 100000
 
 Total number of events in simulation is 100000
 
@@ -115,7 +114,7 @@ Total number of events in simulation is 100000
 
  .. code-block:: bash
 
-    $ ./core B inp.mac 100000
+    $ ./simulate B inp.mac 100000
 
 100000 Events per Thread. The total number of events in the simulation will be 100000*ThreadNumber. ThreadNumber is set by command /RunAndScoreData/setNumberOfThreads
 
@@ -125,7 +124,7 @@ This mode is used when Geant4 is built in multi-threading.
 
  .. code-block:: bash
 
-    $ /home/../mpirun -np [Rank Number] core B inp.mac 100000
+    $ /home/../mpirun -np [Rank Number] ./simulate B inp.mac 100000
 
 [Rank Number] : number of parallel simulations on the cluster, where each simulation runs on a cluster unit(i.e core). DoseCalcs uses different Events Data for each simulation in order to avoid the results repetition.
 
@@ -144,7 +143,7 @@ G mode is used just for geometry visualization in Sequential mode (DoseCalcs bui
 
  .. code-block:: bash
 
-    $ ./core G [input file] [.]
+    $ ./simulate G [input file] [.]
 
 [.] : can be : v or empty value which mean visualize geometry with Qt interface using OGL driver; d means download the geometry image in PS format, by specifying the image axis and and depth on this axis; visualization macros file to visualize your geometry with your own Geant4 visualization commands.
 
@@ -155,14 +154,14 @@ Gen mode is used just for events data generation, this data which is used after 
 In  Multi-threaded(MT) or Sequential execution modes
  .. code-block:: bash
 
-    $ ./core Gen [input file]
+    $ ./simulate Gen [input file]
 
 The data units are generated progressively, begins with initial positions in source volume 1, then source volume 2, ..., energy 1, energy 2 ..., momentum direction.
 
 In  MPI execution modes
  .. code-block:: bash
 
-    $ /home/../mpirun -np [Rank Number] core Gen [input file]
+    $ /home/../mpirun -np [Rank Number] ./simulate Gen [input file]
 
 [Rank Number] : must be equal to the data that will be generated, where each rank generates a data unit, for example, to generate initial positions in three source volumes, two energies, and one momentum direction, the [Rank Number] must be set to 6.
 
@@ -280,33 +279,60 @@ ResultsData.txt
     Thyroid                 4.844505e-04   3.121624e-10   1.029      15964       0.019      19.303         0.987
     * ----------------------------------------------------------------------------------------------------------------------------------------------
 
+The file above represent results for 4 simulations, each simulation is indicated by the a header file and the corresponding scores quantity data in the scored region, each scored region data is given in a separated line.
+
+1. Header line
+
+SAF
+Liver
+gamma
+1
+Mono
+Isotropic
+Voxels
+400000Event
+13737602Step
+0.1mm
+0.001MeV
+1Wr
+MT
+0
+StepLevel
+400000MeV
+227380MeV
+6,02386e-09Sv
+Liver 0,0597098%
+Eye_lense_right 98.6154%
+0,000307729ms
+1.95382min
+
 How to get this results
 +++++++++++++++++++++++
 
 1. Which Computation mode!
 
-Sequential : 
+Sequential :
 
-Multi-threading : 
+Multi-threading :
 
-MPI : 
+MPI :
 
 2. merge executable and input file
 
 Analysis
 --------
 
-prequisites to analysis 
+prequisites to analysis
 +++++++++++++++++++++++
 
-1. Setting ROOT install directory 
+1. Setting ROOT install directory
 
 2. /AnalysisData/ commands
 
-analysis executable and input file  
+analysis executable and input file
 ++++++++++++++++++++++++++++++++++
 
-Analysis output directory and files  
+Analysis output directory and files
 +++++++++++++++++++++++++++++++++++
 
 Build directory Final Structure

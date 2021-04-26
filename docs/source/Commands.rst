@@ -162,13 +162,13 @@ This command does not need the /GeometryData/createSolid or any built material
 
 This command does not need the /GeometryData/createSolid or any built material
 
-4. Voxelized Geometry
+.. 4. Voxelized Geometry
 
- .. code-block::
+.. .. code-block::
 
-    /GeometryData/createVolume VOXEL
+..    /GeometryData/createVolume VOXEL
 
-This command does not need the /GeometryData/createSolid but uses the built material, and some additionnal commads as :
+.. This command does not need the /GeometryData/createSolid but uses the built material, and some additionnal commads as :
 
 
 To Define Source
