@@ -242,7 +242,7 @@ The simulation inputs are the same as for GDML phantom geometry, the difference 
     
 
 Geometry from commands and STL files
--------------------------------------
+------------------------------------
 
 Input File
 ++++++++++
