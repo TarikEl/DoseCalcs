@@ -177,6 +177,8 @@ DoseCalcs Results are given in text format files, each thread calculation produc
 SimData.txt
 +++++++++++
 
+The file called SimData is containing simulation data with the needed parameters to generate the final results file, and to be used also by [analysis] executable as an input file to generate graphs, histograms and tables. First, the regions data are written after ">> Regions Data" tag. All the needed simulation data are written after ">> Inputs Data" tag. 
+
  .. code-block::
     :linenos:
     :emphasize-lines: 1, 15
@@ -234,6 +236,8 @@ SimData.txt
 ResultsData.txt
 +++++++++++++++
 
+For each simulation, i.e source volume, particle and energy combination, the obtained scores are appended to results file. The generated data are written in a simple format, first line as a simulation header file which contains simulation data such as scored quantity, source volume name, particle name, etc. followed by data lines, each line contains the results for a scored volume.
+
  .. code-block::
     :linenos:
     :emphasize-lines: 1, 11, 21, 31
@@ -283,39 +287,47 @@ The file above represent results for 4 simulations, each simulation is indicated
 
 1. Header line
 
-SAF
-Liver
-gamma
-1
-Mono
-Isotropic
-Voxels
-400000Event
-13737602Step
-0.1mm
-0.001MeV
-1Wr
-MT
-0
-StepLevel
-400000MeV
-227380MeV
-6,02386e-09Sv
-Liver 0,0597098%
-Eye_lense_right 98.6154%
-0,000307729ms
-1.95382min
+SAF 		: scored quantity
+Liver 		: source region name
+gamma 		: particle name
+1 		: particle initial energy in (MeV)
+Mono 		: particle energy distribution
+Isotropic 	: particle momentum direction distribution
+GDML 		: Geomeytry file format
+400000Event 	: total number of simulated events
+13737602Step 	: total number of simulated steps
+0.1mm 		: cut in range
+0.001MeV	: energy threshold
+1Wr		: radiation factore
+MT		: computation mode
+0		: Rank ID
+StepLevel	: accuracy calculation level
+400000MeV	: total emitted energy
+227380MeV	: total ebsorbed energy in phantom
+6,02386e-09Sv		: effective dose 
+Liver 0,0597098%		: minimum registered Standard Deviation
+Eye_lense_right 98.6154%	: maximum registered SD
+0,000307729ms	: mean dutarion for events simulation 
+1.95382min	: mean dutarion for simulation
 
+2. Scored Data lines
+
+The results for each scored volume are written in the format: 
+ 
+Scored_Region Scored_Quantity Standard_Deviation Relative_Standard_Deviation Number_Of_Steps Region_Mass  Region_Volume Region_Density
+    
 How to get this results
 +++++++++++++++++++++++
 
 1. Which Computation mode!
 
-Sequential :
+DoseCalcs code provides three computation modes, sequential, multi-threading and MPI. And for each computation mode, three run modes are available, for data generation mode (Gen), calculation mode (B), and graphical visualization mode (G) only for (SEQ) and (MT) scenarios.
 
-Multi-threading :
+Sequential : simulation of total number of events on one thread (master thread)
 
-MPI :
+Multi-threading :simulation of total number of events is divided on the number of threads, and each thread simulates corresponding events number with the same source data.
+
+MPI : each rank simulates one run sequentially and the total number of runs will be the number of ranks, each rank simulates a specific source data separately.
 
 2. merge executable and input file
 
@@ -325,12 +337,33 @@ Analysis
 prequisites to analysis
 +++++++++++++++++++++++
 
-1. Setting ROOT install directory
+To use the [analysis] executable, to steps are needed:
 
-2. /AnalysisData/ commands
+1. The user must build the DoseCalcs code with option WITH\_ANALYSIS\_USE=ON and set the ROOT\_Dir=/../../root . This will build an executable called analysis.
+
+ .. code-block:: bash
+  
+   -DWITH_ANALYSIS_USE=ON  -DROOT_DIR=/home/.../RootInstallDir
+
+
+2. The first /AnalysisData/generateSelfCrossGraphs parameter should point to Result or Reference_Result value, and if the value is Result_Reference, the reference data file should be given and written in a specific text format in order to be readable by [analysis] executable. An example of this command is given below :
+
+ .. code-block:: bash
+  
+  /AnalysisData/generateSelfCrossGraphs Reference_Result Self_Cross .pdf MIRD /home/User/DoseCalcs/Results/ReferenceData.txt 
+
+After building DoseCalcs with setting Root install directory, by executing the [analysis] executable can generate graphs according to the /AnalysisData/generateSelfCrossGraphs command parameters. Note that this command parameters are such as comparing type, graph type, reference name, reference file path, and other analysis commands parameters.
 
 analysis executable and input file
 ++++++++++++++++++++++++++++++++++
+
+The the simple command line to analysis is:
+
+ .. code-block:: bash
+  
+   ./analysis
+
+the input file of analysis is the SimData file created by calculation. After the execution, the resulted files are produced in the Results/Graphs_Histograms directory.
 
 Analysis output directory and files
 +++++++++++++++++++++++++++++++++++

@@ -419,7 +419,7 @@ Generate Self and Cross Graphs
 
  .. code-block::
 
-    /AnalysisData/generateSelfCrossGraphs [Graphs Data] [Compare Type] [Graphs Extension] [Reference Name] [Reference File Path]
+    /AnalysisData/generateSelfCrossGraphs [Graphs Data] [Compare Type] [Reference Name] [Reference File Path]
 
 ex : /AnalysisData/generateSelfCrossGraphs Reference_Result Self_Cross .pdf MIRD /home/User/DoseCalcs/Results/ReferenceData.txt
 
