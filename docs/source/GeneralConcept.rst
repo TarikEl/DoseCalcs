@@ -361,7 +361,7 @@ The the simple command line to analysis is:
 
  .. code-block:: bash
   
-   ./analysis
+   $ ./analysis
 
 the input file of analysis is the SimData file created by calculation. After the execution, the resulted files are produced in the Results/Graphs_Histograms directory.
 
