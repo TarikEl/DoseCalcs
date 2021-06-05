@@ -4,6 +4,9 @@ DoseCalcs Commands
 To Build Materials
 ------------------
 
+Four commands are dedicated to the materials building. The materials are created setting the elements and material data. A second way consists of using the NIST material database. 
+In Fact, the material building is essential to construct world volume in STL and Geant4 predefined solids. Except TEXT and GDML geometry types that use all geometry and material data including world, from TEXT or GDML file.
+
  .. code-block::
 
     /MaterialData/createElement [Number Z] [Number A] [Element Name]
@@ -31,6 +34,8 @@ ex : /MaterialData/setNistMaterialNameAndID G4_AIR 1
 To Construct Volumes
 --------------------
 
+The Geometry construction in DoseCalcs(except for GDML and TEXT formats) pass through construction of world volume, solids, and volumes. Materials should be created before. DoseCalcs groups these steps in three /GeometryData commands.
+
 Creating World Volume
 +++++++++++++++++++++
 
@@ -49,7 +54,7 @@ Creating Solids
 
     /GeometryData/createSolid [Solid Type] [Solid Name] [Solid Parameters] [Length Unit] [Angle Unit]
 
-/GeometryData/createWorld command must be used firstly.
+The next solid types require firstly, the World volume construction. which is done by /GeometryData/createWorld command.
 
 2. Box
 
@@ -129,6 +134,8 @@ Creating Solids
 
      /GeometryData/createSolid [Solid Type] [Solid Name] [First Solid Name] [Second Solid Name] [Solid Relative Translation] [Solid Relative Rotation] [Length Unit] [Angle Unit]
 
+For the last three types, the user needs two solids to create the third which can be union, or intersection or subtraction of the two solids. 
+
 15. STL
 
  .. code-block::
@@ -144,7 +151,7 @@ Creating Volumes
 
     /GeometryData/createVolume [Volume Name Or Geometry Type] [Volume Solid Name] [Volume Material Name] [Volume Mother Name] [X Y Z Position] [X Y Z Rotation] [Length Unit] [Angle Unit]
 
-This parameters must be set when the user create solids by /GeometryData/createSolid command. And the materials should be built.
+This parameters must be set when the user create solids by /GeometryData/createSolid command. And the materials should be built. 
 
 2. Geometry from GDML File
 
@@ -160,7 +167,7 @@ This command does not need the /GeometryData/createSolid or any built material
 
     /GeometryData/createVolume TEXT [TEXT Geometry File Path]
 
-This command does not need the /GeometryData/createSolid or any built material
+This command does not need the /GeometryData/createSolid or any built material. The TEXT or GDML format description of a volume consists of the description of : shape, rotation, position, and material data. All these parameters are implemented in the TEXT or GDML format and one file must contain all volumes as well as the world volume, which means that DoseCalcs takes the entire geometry from this file, without need to construct world by command. Each created volume will be assigned to the sensitive detector to track the particles through it.
 
 .. 4. Voxelized Geometry
 
@@ -173,6 +180,9 @@ This command does not need the /GeometryData/createSolid or any built material
 
 To Define Source
 ----------------
+
+DoseCalcs source is constructed by five principal /SourceData/ commands that hold source parameters, such as events particle names, initial positions, initial energies, initial momentum directions and number of data to generate.
+
 
 Generation Initial Positions
 ++++++++++++++++++++++++++++
@@ -190,6 +200,8 @@ Generation Initial Positions
     /SourceData/setEventsInitialPosData [Length Unit] Volume [VolumeName1 hx hy hz(surrends box half sizes)] [VolumeName1 hx hy hz(surrends box half sizes)] ...
 
 ex : /SourceData/setEventsInitialPosData cm Volume Vol1 4 2 5 Vol2 6 6 10
+
+The passed parameters such as region name, box half dimensions hx, hy and hz. The command takes the first parameter length unit, then "Volume" word, which indicates that the volumes where we want to generate data is a volume with non-uniform shapes, followed by source volume name and the corresponding hx, hy and hz. Additionally, to generate initial positions in more than one volume name, the command support more than one source volume data by adding the second source volume name followed by the corresponding hx, hy and hz, and so on... This makes initial positions generation or simulation in multiple sources easy and simple with one command.   
 
 Generation Initial Energies
 ++++++++++++++++++++++++++++
@@ -241,6 +253,8 @@ Generation Initial Momentum Directions(MomDir)
 
     /SourceData/setEventsInitialMomDirData [Angle Unit] [MomDir Distribution] [Parameter1] [Parameter2] ...
 
+This command takes as a first argument the angle unit, followed by distribution name and distribution corresponding parameters if exist.
+
 2. Isotropic Distribution
 
  .. code-block::
@@ -274,8 +288,8 @@ Setting Events Particle Names
 
 ex : /SourceData/setEventsParticleNameData gamma e- e+
 
-Setting Events Data Number
-++++++++++++++++++++++++++
+Setting Events Data Number, Activating Data Files Generation
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 1. General Command
 
@@ -284,6 +298,12 @@ Setting Events Data Number
     /SourceData/setSourceGenerationData [Events Data number] [Force Positions Generation] [Force Energies Generation] [Force MomDirs Generation]
 
 ex : /SourceData/useDataGenerationFiles 10000 yes yes yes
+
+The data files nomenclature used by DoseCalcs is based on four principal inputs such as data type, distribution name, a value related to this distribution and events number to generate. As a consequence, the file name is constructed in the same manner either for creation during data generation or for reading during simulation process. This nomenclature is used to know clearly which data file to use for the simulation, as well as avoiding the simulation of the same data with the same name. 
+
+Setting this command means that the data generation is activated, then for generation run mode the data will be generated and saved to data files, and for calculation the events initial data will be read from the data files where the name of file is constructed by the same manner when its created. The direct events data simulation without needs to data files can be done just by unsetting this commands.
+
+During simulation, each thread or rank read the data files and fills the position, energy and momentum arrays of size equal to the events number entrusted to this thread or rank. Then it reads the appropriate lines from the data files, in order to avoid the recurrence of an event's simulation with the same initial data. In consequence, it is recommended that the total number of simulated events by all threads must be equal or less than the number of lines in the data files. Note that each line in a data file corresponds to an event position, energy or momentum direction.
 
 Source Data Visualization
 ++++++++++++++++++++++++++
@@ -296,6 +316,8 @@ Source Data Visualization
 
  .. image:: /images/BoxSurrendVolume.png
 
+In the case of the initial positions generation, the box dimensions must be such as the box surrounds the source region as exactly as possible, in order to reduce the generation CPU time. Therefore, the user can use /SourceData/showSourceBox command to visualize the enclosing box in the entire geometry, then fine tuning of the box dimensions must be done before generation tasks. 
+
 2. To Visualize generated initial positions
 
  .. code-block::
@@ -303,6 +325,10 @@ Source Data Visualization
     /SourceData/testEventsInitialPositions
 
  .. image:: /images/BoxPointsTestVisualization.png
+
+Moreover, if the user wants to visualize the initial positions, by setting the command /SourceData/testEventsInitialPositions and launching the simulation process. This command deactivates the transport process in all the body and only the starting source points are shown.
+
+These two commands are useful to verify that the initial positions are well generated in the desired Region volume. 
 
 To Define Physics
 -----------------
@@ -353,6 +379,12 @@ ex : /PhysicsData/setPhysicsData Construct 1 2 1 2 1 1 1 1
 Setting Cuts Data
 +++++++++++++++++
 
+The cuts are defined for electrons, positrons, gamma and protons. To determine the cuts values for the simulated particles. If the distance cut is not passed, the energy cut value is set to the default minimal energy. If both cuts are not passed, the default range cut value for electrons and photons is 1 mm, and according to material specification, it is converted to the energy threshold. In the current version of DoseCalcs code.
+
+Below a threshold energy given by setting a cut in range or in kinetic energy, the secondary particles are simulated as continuous energy loss by the incident particle, this has no significant effect on the simulation results. Above this threshold, the secondary particles are explicitly generated and followed.
+
+The performance of any Monte Carlo simulation will be poor if all the secondary particles are simulated and tracked. In order to reduce the simulation time, we use cut in range (distance cut ) or energy threshold (energy cut). In Geant4, the energy threshold can be 1 keV or larger.
+
  .. code-block::
 
     /PhysicsData/setCutsData [Cut in Range] [Energy Threshold] [Length Unit] [Energy Unit]
@@ -367,6 +399,8 @@ Generating Cross Section Data
     /PhysicsData/generateCrossSectionFor [Particle Name] [Energy Unit] [Energy1] [Energy2] [Energy3] ...
 
 ex : /PhysicsData/generateCrossSectionFor gamma MeV 0.01 0.015 0.02 0.03 0.05 0.1 0.2 0.5 1
+
+Using this command, for each created material in the geometry, a table of macroscopic cross-sections will be created. It contains columns of all processes to be simulated for particle name and for all set energies, and written to the CrossSectionData file.
 
 To Set Run and Score Parameters
 -------------------------------
@@ -444,6 +478,8 @@ Generate Relative Standard Deviation Graph
 Generate Variable-Region Graph
 ++++++++++++++++++++++++++++++
 
+In the context of data analysis for internal dosimetry purpose, the user can generate a graph of a quantity i.e. SAF, in function of either volume, mass, density, and distance between the source and target, by using /AnalysisData/generateVariableRegionGraph command, which takes the variable name (i.e. Mass, Volume, Density and Distance) as an argument. This will show clearly how a dosimetry quantity value changes between targets and sources, and give insight about the parameter that affects this scored quantity.
+
  .. code-block::
 
     /AnalysisData/generateVariableRegionGraph [Parameter Name]
@@ -464,7 +500,7 @@ Setting Graphs Parameters
 
  .. code-block::
 
-    /AnalysisData/setGraphsParameters [Use Log for E axis] [Use Log for Variable axis] [Use Grid XY] [Print Title] [Legend Position] [Graphs Extension]
+    /AnalysisData/setGraphsParameters [Use Log for E axis] [Use Log for Variable axis] [Use Grid XY] [Print Title] [Legend Position] [Legend X Width] [Legend Y Height] [Graphs Extension]
 
 [Use Log for E axis] can be : yes, no.
 
@@ -476,9 +512,13 @@ Setting Graphs Parameters
 
 [Legend Position] can be : RightBottom, LeftBottom, RightTop, LeftTop, MiddleBottom, MiddleTop .
 
+[Legend X Width] : double Value
+
+[Legend Y Height] : double Value
+
 [Graphs Extension] can be : .root , .pdf , .ps , .png , .jpeg .
 
-ex : /AnalysisData/setGraphsParameters yes no yes yes RightTop .pdf
+ex : /AnalysisData/setGraphsParameters yes no yes yes RightTop 0.15 0.23 .pdf
 
 
 

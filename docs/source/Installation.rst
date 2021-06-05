@@ -5,7 +5,6 @@ Installations
 Package Requirements
 --------------------
 
-
  * build-essential 
  
  .. code-block:: bash
@@ -156,7 +155,7 @@ Considering that the application source directory is in /home/User/Desktop/DoseC
    $ cd /home/User/Desktop
    $ mkdir DoseCalcs_build
    $ cd /DoseCalcs_build
-   $ cmake -DCMAKE_BUILD_TYPE=Debug  -DGeant4_DIR=/home/User/Desktop/geant4/geant4_install/lib/Geant4-XX.X.X  -DWITH_GDML_USE=ON­ -DWITH_MT_USE=ON  -DWITH_ANALYSIS_USE=ON  -DROOT_DIR=/usr/local  -DWITH_G4MPI_USE=OFF  -DCMAKE_CXX_COMPILER=/home/User/Desktop/openmpi1.8.1/install/bin/mpicxx  /home/User/Desktop/DoseCalcs
+   $ cmake -DCMAKE_BUILD_TYPE=Debug  -DGeant4_DIR=/home/User/Desktop/geant4/geant4_install/lib/Geant4-XX.X.X -DWITH_GEANT4_UIVIS=ON -DWITH_GDML_USE=ON­ -DWITH_MT_USE=ON  -DWITH_ANALYSIS_USE=ON  -DROOT_DIR=/usr/local  -DWITH_G4MPI_USE=OFF  -DCMAKE_CXX_COMPILER=/home/User/Desktop/openmpi1.8.1/install/bin/mpicxx  /home/User/Desktop/DoseCalcs
    $ make -j4
    $ make install
 
@@ -174,11 +173,11 @@ Considering that the application source directory is in /home/User/Desktop/DoseC
 
 -DWITH_ANALYSIS_USE : Used If we want to Generate Graphs using ROOT ANALYSIS SYSTEM, cmake generate an executable called [analysis]
 
--DROOT_DIR : Used if we set -DWITH_ANALYSIS_USE to ON , the value of this variable is the installation path of ROOT
-
--DWITH_MT_USE : Used in Multi-Threading computation,to run DoseCalcs on multiple cores of a computers, dividing Events number on number Of cores.
-
 -DWITH_G4MPI_USE : Used in MPI DoseCalcs running, to run the application on cluster containing Multiple Computers, each computer has a number of cores. cmake generate an executable called [merge], this used to merge the result of a MPI simulations in cluster nodes, and create a master result on master node.
+
+The use of ROOT and G4MPI requires the installation path of these libraries to be given with -DROOT_DIR and -DMPI_DIR variables while building the code. 
+
+-DROOT_DIR : Used if we set -DWITH_ANALYSIS_USE to ON , the value of this variable is the installation path of ROOT
 
 -DCMAKE_C_COMPILER : Used if we set -DWITH_G4MPI_USE to ON, the value of this variable is the path of mpicc
 
@@ -201,9 +200,6 @@ If -DWITH_ANALYSIS_USE is set OFF, or it doesn’t present in the cmake command,
 .. -DWITH_VOX_USE=ON -DWITH_DCMTK_USE=ON  -DDCMTK_DIR=/home/tarik/Desktop/WorkSpace/geant4/dcmtk-3.6.5/install/usr/local/lib/cmake/dcmtk 
 
 After DoseCalcs building, the three directories EventsData, Scripts and Results in the main application directory structure shown in figure \ref{SrcDir}, are copied to the build directory. Where the scripts directory contains the commands and geometry macros, TissueRadiationFactors.mac file is used in calculation of the equivalent dose (H) and the effective dose (E). The directory EventsData, will contain the generated data files. Finally, Results directory will contain all the results of the simulation, text files and ROOT generated graphs and histograms. Besides these directories, the simulate.cc file serves to generate [simulate] executable file, the same as analysis.cc and merge.cc, that serve to generate [analysis] and [merge] executable files respectively as shown in the figure \ref{BuildDir}. For the visualization purposes macros commands file, openGLVis.mac is called when the user run [simulate] executable in graphical mode.
-
-
-
 
 
 

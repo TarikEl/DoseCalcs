@@ -5,15 +5,19 @@ DoseCalcs Simulations
 Simulation Units
 ----------------
 
-The DoseCalcs execution scenario can be done in three computation modes : sequential (SEQ), multi-threading (MT) and Message Passing Interface (MPI). For each scenario three run modes are available, for data generation mode (Gen), calculation mode (B), and graphical visualization mode (G) only for (SEQ) and (MT) scenarios. After commands parameters initialization by messenger classes, the simulation needs five data types which are used in the five simulation steps, material and geometry constructing, physics setting, source defining, simulation run and scoring, and results analysis. Each simulation step is performed basing on the appropriate commands.
+The DoseCalcs execution scenario can be done in three computation modes : sequential (SEQ), multi-threading (MT) and Message Passing Interface (MPI). For each scenario three run modes are available, for data generation mode (Gen), calculation mode (B), and graphical visualization mode (G) only for (SEQ) and (MT) scenarios. After commands parameters initialization by messenger classes, the simulation needs five data types which are used in the five simulation steps, material and geometry constructing, physics setting, source defining, simulation run and scoring, and results analysis. Each simulation step is performed basing on the appropriate commands. To achieve the simulation task, there are two files that can be considered as principal code inputs, macro command file and geometry file as shown in the figure 
 
 Build a Simple Example
 ----------------------
 
 To simulate a dosimetry problem with DoseCalcs application, it's necessary to uses to user files as an inputs data, first is the input commands file, second is the geometry description file(or files if needed). The input file contains the commands to set the needed parameter for each simulation unit, such as geometry (materials and volumes and/or geometry file), physics, source, run and score, analysis. Each category of those uses a specific commands.
 
+The simulation needs five data types which are used in the five simulation steps, material and geometry constructing, physics setting, source defining, simulation run and scoring, and results analysis. Each simulation step is performed basing on the appropriate commands.
+
 Input command Files
 +++++++++++++++++++
+
+The macro(or input) file is an ASCII file based on the Geant4 macro syntax. The code loads this file to initialize the simulation by selecting the parameters from commands given in this file, then avoiding the need to recompile the source code for any change in the simulation.
 
 1. Input file example
 
@@ -66,7 +70,7 @@ Input command Files
     /AnalysisData/generateRelativeSDevGraph
     /AnalysisData/generateVariableRegionGraph Mass
     /AnalysisData/generateEventsDataHisto
-    /AnalysisData/setGraphsParameters yes no yes yes RightTop .pdf
+    /AnalysisData/setGraphsParameters yes no yes yes RightTop 0.15 0.23 .pdf
 
 2. How the data are used
 
@@ -91,6 +95,9 @@ Execution
 
 Execution Command
 +++++++++++++++++
+
+Of course, DoseCalcs code building requires Geant4 to be installed first, and it is preferred that Geant4 be built for multi-threading computation mode. Then, to run DoseCalcs sequentially. With a command line processing interface, the execution needs three parameters to be specified by the user [Run Mode], [input file] and [Events Number Per Thread].
+
  .. code-block:: bash
 
     $ ./simulate [Run Mode] [input file] [Events Number Per Thread]
@@ -122,6 +129,8 @@ This mode is used when Geant4 is built in multi-threading.
 
 3. MPI Execution Command
 
+In MPI computation mode, the mpiexec or mpirun command should be set firstly as given in the following command:
+
  .. code-block:: bash
 
     $ /home/../mpirun -np [Rank Number] ./simulate B inp.mac 100000
@@ -134,6 +143,8 @@ This mode is used when the DoseCalcs is built with WITH_G4MPI_USE=ON, and and se
 
 Run Modes
 +++++++++
+
+The [Run Mode] can be one of B(batch), G(Graphical) or Gen(Generation) modes. The Graphical mode is used to visualize(v) the geometry read by DoseCalcs, as well as to test the events initial positions by setting the command /TestEventsInitialPositions. It allows also the box dimensions visualization by setting the command /ShowSourceBox in the input file. As mentioned before, the graphical mode can be used only in sequential and multi-threading computation modes. However, MPI computation mode is directed just for Batch and Generation Run Modes. The Batch run mode is dedicated to simulation and scoring and the Gen run mode is used for events data generation such as initial positions, energies and momentum directions. 
 
 [Run Mode] : can be : B (Batch "default if we don't set [Run Mode]), G (Graphical), T (Terminal) or Gen (Generation).
 
@@ -168,6 +179,14 @@ In  MPI execution modes
 3. B Run Mode
 
 B mode is used to simulate the events interactions and gives the dosimetric quantities outputs scored.
+
+Supposing that we have as an input, A particles(Part), B source Regions(Src), C energies(Ene) and D momentum directions(MomDir), the data generation and the calculation tasks are distributed among the ranks (or threads). As a consequence, the number of ranks(or threads) needed to generate these events data is N=B+C+D, where each rank generates a specific data file, whereas the number of ranks (or threads) needed for simulations will be the number of combinations Part-Src-Ene-MomDir which is ( N = A * B * C * D ). An Additional option, is the capability to simulate one Part-Src-Ene-MomDir combination (A=B=C=D=1 -> N=1) on all ranks (or threads) which means one simulation on all ranks using the same source data. Note that the total number of simulated events in this case for one simulation (for one combination) is ([TotalEventsNumber]=N * [EventsNumber]).
+
+ .. image:: /images/SimModeGen.png
+
+ .. image:: /images/SimModeGen.png
+
+For Multi-threading or MPI modes, the total number of simulated events is the EventsNumber multiplied by thread number or rank number respectively. Note that this total number should not exceed the maximum G4int value. 
 
 Results
 -------
@@ -235,6 +254,8 @@ The file called SimData is containing simulation data with the needed parameters
 
 ResultsData.txt
 +++++++++++++++
+
+The text file contains the internal dosimetry quantities (AE, AD, AF, SAF, S, H and E) for each source region, particle name, particle energy and target region. It is structured as a sequence of text lines summarizing obtained data for each target, such as quantity value, standard deviation, relative standard deviation in percent, interaction number in the target, etc.
 
 For each simulation, i.e source volume, particle and energy combination, the obtained scores are appended to results file. The generated data are written in a simple format, first line as a simulation header file which contains simulation data such as scored quantity, source volume name, particle name, etc. followed by data lines, each line contains the results for a scored volume.
 
@@ -331,13 +352,21 @@ MPI : each rank simulates one run sequentially and the total number of runs will
 
 2. merge executable and input file
 
+In the case a simulation on a rank crashed due to memory problem, the merge executable which is built as a helper for results calculation, can be used to generate global results from threads or ranks files that achieved successfully the simulation and have produced the results file related to their own thread or rank.
+
+The results calculation steps are based on three tupe of files, simulation data file [SimData], tissue and radiation factors files, to be used in in the calculation of of equivalent and effective dose, and thread or rank region result data files, with the objective of getting all the needed data, to merge threads or ranks results then calculating and writing the final simulation results to the file [ResultsData] .
+
+The printed quantities in the scored volumes are those passed by user commands. Where for each simulation, i.e source volume, particle and energy combination, the obtained scores are appended to results file [ResultsData], the generated data are written in a simple format, first line as a simulation header file which contains simulation data such as scored quantity, source volume name, particle name, etc. followed by data lines, each line contains the results in a scored volume. 
+
 Analysis
 --------
 
 prequisites to analysis
 +++++++++++++++++++++++
 
-To use the [analysis] executable, to steps are needed:
+The purpose of a graph or histogram is to present data that are too numerous or complicated to be described adequately in the text and in less space. In order to make graphs and histograms easily, [analysis] executable has been developed as a direct interface to ROOT Analysis System ROOT. This executable serves to generate graphs according to the /AnalysisData/ commands parameters. Note that this command parameters such as graph type, comparing type, reference name, reference file path, and other analysis commands parameters, must be given in the macros file DoseCalcs save them to the simulation data file [SimData] created [simulate] executable. This file is to be reused beside the results file like the one shown in figure [ResultsFile] as an input file for analysis tasks. However, the parameters in [SimData] file should be adjusted to create the desired analysis tasks by [analysis]. 
+
+To use the [analysis] executable, two coditions are needed:
 
 1. The user must build the DoseCalcs code with option WITH\_ANALYSIS\_USE=ON and set the ROOT\_Dir=/../../root . This will build an executable called analysis.
 
@@ -353,6 +382,10 @@ To use the [analysis] executable, to steps are needed:
   /AnalysisData/generateSelfCrossGraphs Reference_Result Self_Cross .pdf MIRD /home/User/DoseCalcs/Results/ReferenceData.txt 
 
 After building DoseCalcs with setting Root install directory, by executing the [analysis] executable can generate graphs according to the /AnalysisData/generateSelfCrossGraphs command parameters. Note that this command parameters are such as comparing type, graph type, reference name, reference file path, and other analysis commands parameters.
+
+A Self-absorption graph is a graph that contains data when the source and target organs are the same. Cross-irradiation graph or source graph contains data of all target organs that receive the radiation from a unique source organ. Given the reference data in a file with a simple determined format, the code can compare the results of the simulation with this reference data automatically and produces graphs to make the measurement of the simulation accuracy easy, in order to search in the physical context the origin of the discrepancy between the reference data and code results.
+
+The graphs and histograms are created by a direct interface to ROOT Analysis System which supports multi files format of the generated graphs and histograms. The user can choose the appropriate format in DoseCalcs. For the graphs type, the self-absorption and cross-irradiation data can be generated, besides other graphs such as relative errors and relative standard deviation, macroscopic cross section, etc. In addition, the simulation inputs such as initial positions, energies and momentum directions can be drawn in a 2D and 3D histograms.
 
 analysis executable and input file
 ++++++++++++++++++++++++++++++++++

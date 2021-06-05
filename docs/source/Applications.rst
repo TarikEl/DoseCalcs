@@ -39,7 +39,7 @@ Input File (inp.mac)
     /AnalysisData/generateRelativeSDevGraph
     /AnalysisData/generateVariableRegionGraph Mass
     /AnalysisData/generateEventsDataHisto
-    /AnalysisData/setGraphsParameters yes no yes yes RightTop .pdf
+    /AnalysisData/setGraphsParameters yes no yes yes RightTop 0.15 0.23 .pdf
 
 1. Simulation inputs 
 
@@ -170,6 +170,8 @@ The calculation mode generate SimData file that contains all simulated region's 
     UseGridXY                        yes
     PrintTitle                       yes
     LegendPos                        RightTop
+    LegendXWidth                     0.15
+    LegendYHeight                    0.23
     GraphsExt                        .pdf
     MPISimulationNum                 m
     QuantitiesToScore                SAF      
@@ -337,7 +339,7 @@ Input File
     /AnalysisData/generateRelativeSDevGraph
     /AnalysisData/generateVariableRegionGraph Mass
     /AnalysisData/generateEventsDataHisto
-    /AnalysisData/setGraphsParameters yes no yes yes RightTop .pdf
+    /AnalysisData/setGraphsParameters yes no yes yes RightTop 0.15 0.23 .pdf
 
 In addition to the solids constructed by commands, the mentionned STL files (solid1.stl , solid2.stl) should be present in the indicated path.
 
